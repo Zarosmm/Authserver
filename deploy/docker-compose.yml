@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  app:
+    restart: always
+    image: authserver
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: authserver
+    working_dir: /app
+    command: bash -c "gunicorn --timeout=30 --workers=4 --bind :10080 Authserver.wsgi:application"
+    networks:
+      - backend
+
+
+networks:
+  backend:
+    external: true

@@ -1,0 +1,68 @@
+image: python:3.6
+
+build_and_test:
+  tags:
+   - python_build
+  script:
+   - pip3 --trusted-host pypi.douban.com  install -i http://pypi.douban.com/simple/ -r requirements.txt
+   - python3 manage.py makemigrations
+   - python3 manage.py migrate
+   - python3 manage.py collectstatic -c --no-input
+   - python3 manage.py test
+  when: on_success
+  only:
+    - merge_requests
+
+build_for_deploy:
+  stage: test
+  variables: {
+    BUILD_ENV: "xxx",
+    PROJECT_NAME: "ff",
+    INSTALL_DIR: "/opt/app",
+  }
+  tags:
+   - python_build
+  script:
+   - pip3 --trusted-host pypi.douban.com --cache-dir /opt/pip_cache install -i http://pypi.douban.com/simple/ -r requirements.txt
+
+   - echo $INSTALL_DIR
+   - rm -rf $INSTALL_DIR
+   - mkdir -p $INSTALL_DIR
+
+
+   - python3 manage.py makemigrations
+   - python3 manage.py migrate
+   - python3 manage.py collectstatic -c --no-input
+   - python3 manage.py test
+
+   # keep a copy of release
+   - git clean -dfx
+   - git rev-parse --verify HEAD > $INSTALL_DIR/VERSION
+   - cp -a . $INSTALL_DIR
+   # using CST timezone
+   - ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+   - echo "generate /data/release/$PROJECT_NAME-snapshot-`date +%Y-%m-%d`.tar.gz"
+   - tar czf /data/release/$PROJECT_NAME-snapshot-`date +%Y-%m-%d`.tar.gz -C `dirname $INSTALL_DIR` $PROJECT_NAME
+   - chmod a+r /data/release/$PROJECT_NAME-snapshot-`date +%Y-%m-%d`.tar.gz
+
+  when: on_success
+  only:
+    - schedules
+
+deploy_to_ci:
+  stage: .post
+  tags:
+   - host
+  script:
+   # update CI on 125
+   - echo "/data/release/ff-snapshot-`date +%Y-%m-%d`.tar.gz"
+   - scp -r "/data/release/`$PROJECT_NAME`-snapshot-`date +%Y-%m-%d`.tar.gz" root@129.211.27.39:/opt/app/
+   - ssh root@129.211.27.39 "cd /opt/app/;tar zxf ff-snapshot-`date +%Y-%m-%d`.tar.gz"
+   - ssh root@129.211.27.39 "cd /opt/app"
+
+  dependencies:
+   - build_for_deploy
+
+  when: on_success
+  only:
+    - schedules
