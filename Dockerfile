@@ -19,6 +19,7 @@ RUN apt-get update
 RUN mkdir /app
 
 WORKDIR /app
-ADD .. /app
+ADD . /app
 # 安装库
 RUN pip3 install -r requirements.txt -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple
+RUN python manage.py collectstatic --no-input

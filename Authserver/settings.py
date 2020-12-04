@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+if 'AUTH_SERVER' in os.environ and os.environ['AUTH_SERVER']:
+    AUTH_SERVER = os.environ['AUTH_SERVER']
+else:
+    AUTH_SERVER = "https://auth.zarosmm.com/"
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,10 +28,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'l5--hu=4mv6@7byrv^=dy!th(8lfn@-_yejx+$)(v9+3dl%^-y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -56,6 +60,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'Authserver.urls'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     )
@@ -127,7 +132,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATIC_URL = '/static/'
+
+JWT_AUTH = {
+  'JWT_RESPONSE_PAYLOAD_HANDLER':'utils.jwtverify.jwt_response_payload_handler'
+}
+
 
 
 CORS_ALLOW_CREDENTIALS = True

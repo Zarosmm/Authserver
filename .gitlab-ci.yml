@@ -17,7 +17,7 @@ build_for_deploy:
   stage: test
   variables: {
     BUILD_ENV: "xxx",
-    PROJECT_NAME: "ff",
+    PROJECT_NAME: "authserver",
     INSTALL_DIR: "/opt/app",
   }
   tags:
@@ -55,9 +55,9 @@ deploy_to_ci:
    - host
   script:
    # update CI on 125
-   - echo "/data/release/ff-snapshot-`date +%Y-%m-%d`.tar.gz"
+   - echo "/data/release/`$PROJECT_NAME`-snapshot-`date +%Y-%m-%d`.tar.gz"
    - scp -r "/data/release/`$PROJECT_NAME`-snapshot-`date +%Y-%m-%d`.tar.gz" root@129.211.27.39:/opt/app/
-   - ssh root@129.211.27.39 "cd /opt/app/;tar zxf ff-snapshot-`date +%Y-%m-%d`.tar.gz"
+   - ssh root@129.211.27.39 "cd /opt/app/;tar zxf `$PROJECT_NAME`-snapshot-`date +%Y-%m-%d`.tar.gz"
    - ssh root@129.211.27.39 "cd /opt/app"
 
   dependencies:
