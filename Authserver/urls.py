@@ -16,16 +16,18 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
 from rest_framework_jwt.views import obtain_jwt_token,verify_jwt_token
-from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework import routers
 
 from otp.views import obtain_otp_token,verify_otp_token
-from rbac.views import UserView
+from rbac.views import obtain_auth_token, RoleViewSet, UserViewSet, MenuViewSet
 
+router = routers.DefaultRouter()
+router.register('user',UserViewSet,basename='user')
+router.register('role',RoleViewSet,basename='role')
+router.register('route',MenuViewSet,basename='route')
 urlpatterns = [
-
-    url(r'^user',UserView.as_view()),
     # token
     url(r'^api/token-obtain',obtain_auth_token),
     # jwt
@@ -35,4 +37,5 @@ urlpatterns = [
     url(r'^api/otp-obtain',obtain_otp_token),
     url(r'^api/otp-verify',verify_otp_token),
 
+    url(r'', include(router.urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
