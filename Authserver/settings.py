@@ -12,10 +12,16 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+JUHE_API_OPENID = 'JH6f7e8506f540dd0025ce2e736ec33f9e'
+
 if 'AUTH_SERVER' in os.environ and os.environ['AUTH_SERVER']:
     AUTH_SERVER = os.environ['AUTH_SERVER']
 else:
     AUTH_SERVER = "https://auth.zarosmm.com/"
+
+
+
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -71,14 +71,12 @@ class MenuViewSet(ModelViewSet):
         data = s.data.copy()
         children = o.children.all()
         if len(children) > 0:
-
             data['children'] = [self.display(child) for child in children]
         return data
 
     def list(self, request, *args, **kwargs):
         o = self.queryset.get(pk=1)
         menutree = self.display(o)
-        print(menutree)
         return Response(menutree['children'])
 
 

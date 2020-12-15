@@ -44,15 +44,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class MenuSerializer(serializers.ModelSerializer):
+
+    checked = serializers.SerializerMethodField()
+
     class Meta:
         model = Menu
         fields = '__all__'
 
-    def create(self, validated_data):
-        instance = Menu.objects.create(
-            parent_id=self.initial_data['parent_id'][-1] if self.initial_data['parent_id'] else 0,
-            **validated_data)
-        return instance
+    def get_checked(self,instance):
+        if instance.parent:
+            menu = instance
+            return reversed(get_parent_id_list(menu)[:-1])
 
 
 class MenuTreeSerializer(serializers.ModelSerializer):
@@ -91,3 +93,12 @@ class RoleInfoSerializer(serializers.ModelSerializer):
         if len(children) > 0:
             data['children'] = [self.display(MenuTreeSerializer, child, ids) for child in children]
         return data
+
+
+
+def get_parent_id_list(obj):
+    ids = []
+    if obj.parent:
+        ids.append(obj.parent.id)
+        ids += get_parent_id_list(obj.parent)
+    return ids
