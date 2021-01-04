@@ -11,15 +11,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
     email = serializers.CharField(source='user.email')
     roles = serializers.SerializerMethodField()
     name = serializers.CharField(source='nickname')
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'username', 'name', 'money', 'viptime', 'member', 'roles', 'email']
+        fields = ['id', 'username', 'name', 'money', 'viptime', 'member', 'roles', 'email','avatar']
 
     def get_roles(self, instance):
         u = instance.user
         roles = [r.name for r in u.role_set.all()]
         return roles
+
+    def get_avatar(self,instance):
+        return instance.avatar.name
 
     def create(self, validated_data):
         if User.objects.filter(username=validated_data['user']['username']).exists():
@@ -34,6 +38,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             user=user,
             **validated_data
         )
+        roles = Role.objects.filter(name__in=self.initial_data['roles'])
+        user.role_set.add(*roles)
         return userprofile
 
 

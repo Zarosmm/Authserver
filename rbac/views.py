@@ -15,12 +15,16 @@ from rest_framework.viewsets import ModelViewSet
 from rbac.models import UserProfile, Role, Menu
 from rbac.serializers import RoleInfoSerializer, UserProfileSerializer, MenuSerializer, UserUpdateSerializer, \
     RoleUpdateSerializer
+from utils.wsclient import ws
 
 
 class UserViewSet(ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
+    @action(methods=['get'],detail=False)
+    def usercount(self, request):
+        return self.queryset.count()
     @action(methods=['get'], detail=False)
     def getuserinfo(self, request):
         u = request.user
@@ -54,7 +58,6 @@ class RoleViewSet(ModelViewSet):
         s = RoleUpdateSerializer(data=data, instance=o)
         if s.is_valid(raise_exception=True):
             s.update(o, s.validated_data)
-        print(data['routes'])
         menus = Menu.objects.filter(id__in=data['routes'])
         if menus:
             o.menu_set.clear()

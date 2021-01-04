@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+
 JUHE_API_OPENID = 'JH6f7e8506f540dd0025ce2e736ec33f9e'
 
 if 'AUTH_SERVER' in os.environ and os.environ['AUTH_SERVER']:
@@ -19,13 +20,28 @@ if 'AUTH_SERVER' in os.environ and os.environ['AUTH_SERVER']:
 else:
     AUTH_SERVER = "https://auth.zarosmm.com/"
 
+if 'PUSH_SERVER' in os.environ and os.environ['PUSH_SERVER']:
+    PUSH_SERVER = os.environ['PUSH_SERVER']
+else:
+    PUSH_SERVER = "ws://push.zarosmm.com/"
 
+if 'DB_ENGINE' in os.environ and os.environ['DB_ENGINE']:
+    DB_ENGINE = os.environ['DB_ENGINE']
+else:
+    DB_ENGINE = "sqlite3"
 
+if 'MYSQL_HOST' in os.environ and os.environ['MYSQL_HOST']:
+    MYSQL_HOST = os.environ['MYSQL_HOST']
+else:
+    MYSQL_HOST = "129.211.27.39"
 
+if 'REDIS_HOST' in os.environ and os.environ['REDIS_HOST']:
+    REDIS_HOST = os.environ['REDIS_HOST']
+else:
+    REDIS_HOST = "129.211.27.39"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -94,17 +110,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Authserver.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DB_ENGINE == 'mysql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'authdb',
+            'USER': 'root',
+            'PASSWORD': 'KuzidiaolE@60166',
+            'HOST': MYSQL_HOST,
+            'PORT': '3306',
+        }
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -124,7 +150,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -138,19 +163,17 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATIC_URL = '/static/'
-
+MEDIA_ROOT = '/data'  # os.path.join(INSTALL_DIR, 'media')
+MEDIA_URL = '/media/data/'
 JWT_AUTH = {
-  'JWT_RESPONSE_PAYLOAD_HANDLER':'utils.jwtverify.jwt_response_payload_handler'
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'utils.jwtverify.jwt_response_payload_handler'
 }
-
-
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
@@ -177,3 +200,7 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'Pragma',
 )
+
+FILE_UPLOAD_PERMISSIONS = 0o644
+PICTURE_ASSETS_PATH = 'images'
+SHARE_DATA = '/data'
